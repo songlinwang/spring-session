@@ -100,6 +100,9 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 	 */
 	public static final int DEFAULT_ORDER = Integer.MIN_VALUE + 50;
 
+	/**
+	 * fixme Repository is interface for storing,which is implemented by Redis,mongoDB or genfire --wsl--
+	 */
 	private final SessionRepository<S> sessionRepository;
 
 	private ServletContext servletContext;
@@ -138,6 +141,7 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 			throws ServletException, IOException {
 		request.setAttribute(SESSION_REPOSITORY_ATTR, this.sessionRepository);
 
+		// fixme normal request and response are wrapper to spring which means httpSession converted to SpringSession
 		SessionRepositoryRequestWrapper wrappedRequest = new SessionRepositoryRequestWrapper(
 				request, response, this.servletContext);
 		SessionRepositoryResponseWrapper wrappedResponse = new SessionRepositoryResponseWrapper(
@@ -147,6 +151,7 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 			filterChain.doFilter(wrappedRequest, wrappedResponse);
 		}
 		finally {
+			//fixme save the session
 			wrappedRequest.commitSession();
 		}
 	}
@@ -180,6 +185,7 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 			this.request = request;
 		}
 
+		// fixme only store the session when we end the controller
 		@Override
 		protected void onResponseCommitted() {
 			this.request.commitSession();
@@ -224,6 +230,13 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 			HttpSessionWrapper wrappedSession = getCurrentSession();
 			if (wrappedSession == null) {
 				if (isInvalidateClientSession()) {
+					//fixme httpSessionIdResolver is an interface implemented by CookieHttpSessionIdResolver and HeaderHttpSessionIdResolver
+					/**
+					 sessionID??????????spring-session???????
+					 1.cookie?? ?CookieHttpSessionStrategy
+					 2.http header ???HeaderHttpSessionStrategy
+					 ????????????????
+					 **/
 					SessionRepositoryFilter.this.httpSessionIdResolver.expireSession(this,
 							this.response);
 				}
@@ -298,6 +311,7 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 			if (currentSession != null) {
 				return currentSession;
 			}
+			// ?cookie?header?????sessionId
 			S requestedSession = getRequestedSession();
 			if (requestedSession != null) {
 				if (getAttribute(INVALID_SESSION_ID_ATTR) == null) {

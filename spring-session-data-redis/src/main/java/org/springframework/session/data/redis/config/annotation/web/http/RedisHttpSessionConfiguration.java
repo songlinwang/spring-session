@@ -63,7 +63,7 @@ import org.springframework.util.StringValueResolver;
  * {@link RedisConnectionFactory} must be exposed as a Bean.
  *
  * @author Rob Winch
- * @author Eddú Meléndez
+ * @author Edd? Mel?ndez
  * @author Vedran Pavic
  * @see EnableRedisHttpSession
  * @since 1.0
@@ -86,7 +86,7 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 
 	private ConfigureRedisAction configureRedisAction = new ConfigureNotifyKeyspaceEventsAction();
 
-	private RedisConnectionFactory redisConnectionFactory;
+	private RedisConnectionFactory redisConnectionFactory; // fixme Injection from where? --wsl--
 
 	private RedisSerializer<Object> defaultRedisSerializer;
 
@@ -109,6 +109,7 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 		if (this.defaultRedisSerializer != null) {
 			sessionRepository.setDefaultSerializer(this.defaultRedisSerializer);
 		}
+		// default 1800s
 		sessionRepository
 				.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
 		if (StringUtils.hasText(this.redisNamespace)) {
@@ -164,7 +165,7 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 	 * Sets the action to perform for configuring Redis.
 	 *
 	 * @param configureRedisAction the configureRedis to set. The default is
-	 * {@link ConfigureNotifyKeyspaceEventsAction}.
+	 *                             {@link ConfigureNotifyKeyspaceEventsAction}.
 	 */
 	@Autowired(required = false)
 	public void setConfigureRedisAction(ConfigureRedisAction configureRedisAction) {
@@ -218,6 +219,7 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 		this.embeddedValueResolver = resolver;
 	}
 
+	// fixme how to inject the attributes from the .xml where we configure ? --wsl--
 	@Override
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
 		Map<String, Object> attributeMap = importMetadata
@@ -284,12 +286,10 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 			RedisConnection connection = this.connectionFactory.getConnection();
 			try {
 				this.configure.configure(connection);
-			}
-			finally {
+			} finally {
 				try {
 					connection.close();
-				}
-				catch (Exception ex) {
+				} catch (Exception ex) {
 					LogFactory.getLog(getClass()).error("Error closing RedisConnection",
 							ex);
 				}

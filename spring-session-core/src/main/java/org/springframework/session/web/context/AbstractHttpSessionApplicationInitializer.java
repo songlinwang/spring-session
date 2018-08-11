@@ -30,6 +30,7 @@ import org.springframework.core.Conventions;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.util.Assert;
+import org.springframework.web.SpringServletContainerInitializer;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.AbstractContextLoaderInitializer;
 import org.springframework.web.context.ContextLoaderListener;
@@ -69,6 +70,10 @@ import org.springframework.web.filter.DelegatingFilterProxy;
  *
  * @author Rob Winch
  *
+ */
+
+/**
+ * created by springServletContainerInitializer which implements  ServletContainerInitializer{@link SpringServletContainerInitializer}  and annotated by HandlesTypes
  */
 @Order(100)
 public abstract class AbstractHttpSessionApplicationInitializer
@@ -115,6 +120,7 @@ public abstract class AbstractHttpSessionApplicationInitializer
 			rootAppContext.register(this.configurationClasses);
 			servletContext.addListener(new ContextLoaderListener(rootAppContext));
 		}
+		//add springSessionRepositoryFilter(named as xml) though delegatingFilterProxy
 		insertSessionRepositoryFilter(servletContext);
 		afterSessionRepositoryFilter(servletContext);
 	}
@@ -131,6 +137,7 @@ public abstract class AbstractHttpSessionApplicationInitializer
 		if (contextAttribute != null) {
 			springSessionRepositoryFilter.setContextAttribute(contextAttribute);
 		}
+		// register filter in filterChain
 		registerFilter(servletContext, true, filterName, springSessionRepositoryFilter);
 	}
 
@@ -192,6 +199,9 @@ public abstract class AbstractHttpSessionApplicationInitializer
 	 * other {@link Filter}
 	 * @param filterName the filter name
 	 * @param filter the filter
+	 *
+	 *         fixme      get the filter through delegatingFilterProxy by targetBeanName. so this method register the filter by the name
+	 *         fixme        delivered by user
 	 */
 	private void registerFilter(ServletContext servletContext,
 			boolean insertBeforeOtherFilters, String filterName, Filter filter) {

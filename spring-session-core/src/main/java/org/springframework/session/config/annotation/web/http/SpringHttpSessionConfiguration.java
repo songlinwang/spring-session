@@ -120,6 +120,12 @@ public class SpringHttpSessionConfiguration implements ApplicationContextAware {
 		return new SessionEventHttpSessionListenerAdapter(this.httpSessionListeners);
 	}
 
+	/**
+	 * Create a Filter named SessionReposityFilter --wsl--
+	 * @param sessionRepository
+	 * @param <S>
+	 * @return
+	 */
 	@Bean
 	public <S extends Session> SessionRepositoryFilter<? extends Session> springSessionRepositoryFilter(
 			SessionRepository<S> sessionRepository) {
